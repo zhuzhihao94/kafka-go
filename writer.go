@@ -275,6 +275,11 @@ type WriterConfig struct {
 	// The default is to use a target batch size of 100 messages.
 	BatchSize int
 
+	// Limit on how many batches will be buffered in a partitionWriter.
+	//
+	// Defaults to 0, means unlimited queue size.
+	BatchQueueSize int
+
 	// Limit the maximum size of a request in bytes before being sent to
 	// a partition.
 	//
@@ -492,22 +497,23 @@ func NewWriter(config WriterConfig) *Writer {
 	}
 
 	w := &Writer{
-		Addr:         TCP(config.Brokers...),
-		Topic:        config.Topic,
-		MaxAttempts:  config.MaxAttempts,
-		BatchSize:    config.BatchSize,
-		Balancer:     config.Balancer,
-		BatchBytes:   int64(config.BatchBytes),
-		BatchTimeout: config.BatchTimeout,
-		ReadTimeout:  config.ReadTimeout,
-		WriteTimeout: config.WriteTimeout,
-		RequiredAcks: RequiredAcks(config.RequiredAcks),
-		Async:        config.Async,
-		Logger:       config.Logger,
-		ErrorLogger:  config.ErrorLogger,
-		Transport:    transport,
-		transport:    transport,
-		writerStats:  stats,
+		Addr:           TCP(config.Brokers...),
+		Topic:          config.Topic,
+		MaxAttempts:    config.MaxAttempts,
+		BatchSize:      config.BatchSize,
+		BatchQueueSize: config.BatchQueueSize,
+		Balancer:       config.Balancer,
+		BatchBytes:     int64(config.BatchBytes),
+		BatchTimeout:   config.BatchTimeout,
+		ReadTimeout:    config.ReadTimeout,
+		WriteTimeout:   config.WriteTimeout,
+		RequiredAcks:   RequiredAcks(config.RequiredAcks),
+		Async:          config.Async,
+		Logger:         config.Logger,
+		ErrorLogger:    config.ErrorLogger,
+		Transport:      transport,
+		transport:      transport,
+		writerStats:    stats,
 	}
 
 	if config.RequiredAcks == 0 {
